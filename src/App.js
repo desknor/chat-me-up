@@ -20,47 +20,63 @@ firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
 class App extends Component {
+  constructor(props){
+    super(props);
 
-    constructor(props) {
-      super(props);
+    this.state = {
+      activeRoom: '',
+      user: null,
+    };
 
-      this.state = {
-        activeRoom: null,
-        user: null
-      };
+    this.setActiveRoom = this.setActiveRoom.bind(this);
+    this.setUser = this.setUser.bind(this);
+  }
 
-      this.setActiveRoom = this.setActiveRoom.bind(this);
-    }
+  setActiveRoom(room) {
 
-    setActiveRoom(room) {
-      this.setState({ activeRoom: room.key});
-    }
-  
-    render() {
-      return (
-        <div className="App">
-          <header>
-            <h1>Chat-Me-Up</h1>
-          </header>
-          <main>
-            <section id="sidebar">
-              <RoomList 
-                firebase={firebase}
-                activeRoom={this.state.ActiveRoom}
-                setActiveRoom={this.setActiveRoom}
-              />
-              <MessageList 
-                firebase={firebase}
-                activeRoom={this.state.activeRoom}
-              />
-              <User 
-                firebase={firebase}
-                user={this.state.user}
-                setUser={this.setUser}/>
-            </section>
-          </main>
+    this.setState({
+      activeRoom: room
+    });
+
+  }
+
+  setUser(user) {
+    this.setState({
+      user:user
+    });
+  }
+
+  formatTime(timestamp) {
+    // Converts the seconds given by UNIX timestamp to milliseconds for Date object
+    let date = new Date (timestamp);
+    let zTime = date.toLocaleTimeString('en-US');
+    return zTime;
+  }
+
+  render() {
+    return (
+      <div>
+        <User
+        firebase={firebase}
+        setUser={this.setUser}
+        user={this.state.user}
+        />
+        <div className="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+            <RoomList
+            firebase={firebase}
+            activeRoom={this.state.activeRoom}
+            setActiveRoom={this.setActiveRoom}
+            />
+            <MessageList
+            firebase={firebase}
+            activeRoom={this.state.activeRoom}
+            user={this.state.user}
+            formatTime={this.formatTime}
+            />
         </div>
-      )
-    }
+      </div>
+    );
+  }
 }
+
 export default App;

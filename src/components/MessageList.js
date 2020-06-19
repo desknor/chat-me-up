@@ -1,109 +1,177 @@
 import React, { Component } from 'react';
-import Moment from 'moment';
+
 
 class MessageList extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        messages: [],
-        username: '',
-        content: '',
-        sentAt: '',
-        roomId: ''
-  
-      };
-      this.messagesRef = this.props.firebase.database().ref('messages');
-      this.handleChange = this.handleChange.bind(this);
-      this.createMessage = this.createMessage.bind(this);
-    }
-  
-      componentDidMount() {
-        this.messagesRef.on('child_added', snapshot => {
-        var message = snapshot.val()
-        message.key = snapshot.key;
-        this.setState({ messages: this.state.messages.concat( message ) })
-        });
-        this.messagesRef.on('child_removed', snapshot  => {
-        this.setState({ messages: this.state.messages.filter( message => message.key !== snapshot.key )})
-        });
-    }
-  
-      createMessage(e) {
-        e.preventDefault();
-          this.messagesRef.push({
-            username: this.props.user ? this.props.user.displayName : "Guest",
-            content: this.state.content,
-            sentAt: this.props.firebase.database.ServerValue.TIMESTAMP,
-            roomId: this.state.roomId
-        });
-          this.setState({username: "", content: "", sentAt: "", message: ""});
-            e.target.reset();
-      }
-  
-      handleChange(e) {
-        e.preventDefault();
-        this.setState({
-          username: this.state.username,
-          content: e.target.value,
-          sentAt: this.props.firebase.database.ServerValue.TIMESTAMP,
-          roomId: this.props.activeRoom
-        });
-      }
-  
-      deleteMessage(message) {
-        this.messagesRef.child(message.key).remove();
-      }
-  
-  
-      editMessage(message) {
-        this.messagesRef.update(message.key);
-      }
-  
-  
-      render() {
-        let realTime = this.state.messages.sentAt
-        let format = Moment(realTime).format('LLL')
-        let activeRoom = this.props.activeRoom
-        let currentMessages = (
-            this.state.messages.map((message) => {
-            if(message.roomId === activeRoom) {
-            return <ol key = {message.key}> {message.username}  {message.content} {format}
-              <button onClick = { () => this.deleteMessage(message)}>Useless Message?</button>
-              <textarea type="text" defaultValue={message.content} onChange= {this.handleChange}/>
-              <button onClick={ () => this.editMessage(message)}>edit</button>
-  
-            </ol>
-          }
-          return null;
-        })
-      )
-  
-      return (
-        <section>
-          <h3>Messages</h3>
-          <div>
-          <div>
-            <li>
-  
-              {currentMessages}
-  
-            </li>
-          </div>
-          </div>
-            <form onSubmit={this.createMessage}>
-              <textarea 
-              type="text" 
-              placeholder="Enter message" 
-              onChange={ this.handleChange }/>
+  constructor(props){
+    super(props);
 
-              <input 
-              type="submit" 
-              value="Send Message"/>
-            </form>
+    this.state = {
+      messages: [],
+      roomId: '',
+      sentAt: '',
+      newMessage: '',
+      editMessageContent: '',
+      editMessage: '',
+      updateButton: true,
+      newButton: false
+    };
+    this.messagesRef = this.props.firebase.database().ref('messages');
+    this.createMessage = this.createMessage.bind(this);
+    this.handleNewInput = this.handleNewInput.bind(this);
+    this.handleEditMsg = this.handleEditMsg.bind(this);
+    this.handleEditInput = this.handleEditInput.bind(this);
+    this.updateRoomName = this.updateRoomName.bind(this);
+  }
 
-        </section>
-      );
+  componentDidMount() {
+    this.messagesRef.on('child_added', snapshot => {
+      const message = snapshot.val();
+      message.key = snapshot.key;
+      this.setState({ messages: this.state.messages.concat(message)});
+    });
+
+    this.messagesRef.on('child_removed', snapshot => {
+      const previousMessages = this.state.messages;
+
+      for (let i=0; i < previousMessages.length; i++) {
+        if (previousMessages[i].key === snapshot.key) {
+          previousMessages.splice(i, 1);
+        }
+      }
+
+      this.setState({
+        rooms: previousMessages
+      });
+    });
+
+    this.messagesRef.on('child_changed', snapshot => {
+      const previousMessages = this.state.messages;
+      for (let i=0; i < previousMessages.length; i++) {
+        if (previousMessages[i].key === snapshot.key) {
+          previousMessages[i].content = snapshot.val().content;
+        }
+      }
+
+      this.setState({
+        messages: previousMessages
+      });
+
+    });
+  }
+
+  createMessage() {
+    if(this.props.activeRoom){
+      const username = this.props.user ? this.props.user.displayName : "Guest"
+      const timestamp = this.props.firebase.database.ServerValue.TIMESTAMP
+      this.messagesRef.push({
+        content: this.state.newMessage,
+        sentAt: timestamp,
+        roomId: this.props.activeRoom.key,
+        username: username
+      });
+
+      this.setState({
+        newMessage: '',
+        sentAt: timestamp
+      });
+
+    } else {
+      alert("Please select a room before sending a message")
+      this.setState({
+        newMessage: ''
+      });
     }
   }
-  
-  export default MessageList;
+
+  updateRoomName (){
+    const messageId = this.state.editMessage.key;
+    const newMessage = this.state.editMessageContent;
+
+    if (newMessage.trim() !== "") {
+      this.messagesRef.child(messageId).update({
+        content: newMessage
+      });
+
+      this.setState({
+        editMessageContent: '',
+        editMessage: '',
+        updateButton: true,
+        newButton: false
+      });
+    } else {
+      alert("Please enter a Room Name");
+      this.setState({
+        editMessageContent: '',
+        newMessage: '',
+      });
+    }
+  }
+
+  handleNewInput(e) {
+    this.setState({
+      newMessage: e.target.value,
+    });
+  }
+
+  handleEditInput(e) {
+    this.setState({
+      editMessageContent: e.target.value
+    });
+  }
+
+  handleRemoveMsg(messageId) {
+    return this.props.firebase.database().ref('messages').child(messageId).remove();
+  }
+
+  handleEditMsg(message) {
+    const messageContent = message.content;
+    this.setState({
+      editMessage: message,
+      editMessageContent: messageContent,
+      updateButton: false,
+      newButton: true
+    });
+  }
+
+
+  render() {
+    return (
+      <main className="mdl-layout__content message-list">
+          <div className="mdl-grid">
+            <h2 className="mdl-cell mdl-cell--12-col">Messages</h2>
+            {this.state.messages.filter(message => message.roomId === this.props.activeRoom.key).map((message, index) =>
+              <div key={index} className="col-12 messsages">
+                {this.state.editMessage && message.key === this.state.editMessage.key  ?
+                <div>
+                  <input className="mdl-textfield__input bottom" type="text" value={this.state.editMessageContent} onChange={this.handleEditInput}/>
+                  <p>{this.props.formatTime(message.sentAt)}</p>
+                  <p>{message.username}</p>
+                  <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary" type="button" onClick={this.updateRoomName} disabled={this.state.updateButton}>Update</button>
+                </div>
+
+                :
+
+                <div>
+                  <p>{message.content}</p>
+                  <p>{this.props.formatTime(message.sentAt)}</p>
+                  <p>{message.username}</p>
+                  <span className="ion-md-trash" onClick={() => this.handleRemoveMsg(message.key)}></span>
+                  <span className="ion-md-create" onClick={() => this.handleEditMsg(message)}></span>
+                </div>
+              }
+            </div>
+
+            )}
+
+              <div className="input-group">
+                <input className="mdl-textfield__input bottom" type="text" value={this.state.newMessage} placeholder="Enter a message..." onChange={this.handleNewInput} onKeyPress={event => {if (event.key === 'Enter'){this.createMessage();}}}/>
+                <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onClick={this.createMessage}>Send</button>
+              </div>
+          </div>
+      </main>
+
+    );
+  }
+}
+
+export default MessageList;
