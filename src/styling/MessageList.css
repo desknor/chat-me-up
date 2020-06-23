@@ -1,0 +1,10 @@
+.mdl-grid{
+    text-align: center;
+  }
+  
+  .message-list {
+    color: white;
+    background: rgb(40,49,59);
+    background: linear-gradient(90deg, rgba(40,49,59,1) 0%, rgba(72,84,97,1) 100%, rgba(210,204,196,1) 100%);
+    text-align: center;
+  }

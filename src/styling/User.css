@@ -1,0 +1,5 @@
+.title-bar{
+    color: white;
+    background: rgb(139,147,154);
+    background: linear-gradient(90deg, rgba(139,147,154,1) 0%, rgba(91,100,103,1) 100%);
+  }

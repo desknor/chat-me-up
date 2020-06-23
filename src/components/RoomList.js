@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 
+import './../styling/RoomList.css';
+
+import logo from '../CMUlogo.png';
+
 
 class RoomList extends Component {
   constructor(props){
@@ -137,8 +141,12 @@ class RoomList extends Component {
 
   render() {
     return (
-
       <div className="mdl-layout__drawer grid room-list">
+        <div>
+          <header>
+            <img src={logo} alt="logo" />
+          </header>
+        </div>
         <span className="mdl-layout-title top">{this.props.activeRoom ? this.props.activeRoom.name : 'Select a Chat Room'}</span>
             <nav className="mdl-navigation">
             {this.state.rooms.map( room =>
@@ -151,8 +159,8 @@ class RoomList extends Component {
                   :
                     <nav className="mdl-navigation">
                       <span className="mdl-navigation__link create-room" onClick={(e) => this.handleRoomSelect(room,e)}>{room.name}</span>
-                      <span className="ion-md-trash" onClick={() => this.handleRemoveRoom(room.key)}></span>
                       <span className="ion-md-create" onClick={(e) => this.handleEditRoom(room,e)}></span>
+                      <span className="ion-md-trash" onClick={() => this.handleRemoveRoom(room.key)}></span>
                     </nav>
                   }
                 </li>

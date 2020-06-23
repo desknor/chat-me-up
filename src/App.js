@@ -57,21 +57,21 @@ class App extends Component {
     return (
       <div>
         <User
-        firebase={firebase}
-        setUser={this.setUser}
-        user={this.state.user}
+          firebase={firebase}
+          setUser={this.setUser}
+          user={this.state.user}
         />
-        <div className="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+          <div className="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
             <RoomList
-            firebase={firebase}
-            activeRoom={this.state.activeRoom}
-            setActiveRoom={this.setActiveRoom}
+              firebase={firebase}
+              activeRoom={this.state.activeRoom}
+              setActiveRoom={this.setActiveRoom}
             />
             <MessageList
-            firebase={firebase}
-            activeRoom={this.state.activeRoom}
-            user={this.state.user}
-            formatTime={this.formatTime}
+              firebase={firebase}
+              activeRoom={this.state.activeRoom}
+              user={this.state.user}
+              formatTime={this.formatTime}
             />
         </div>
       </div>

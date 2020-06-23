@@ -1,0 +1,44 @@
+.room-list {
+    color: black;
+    text-align: center;
+    padding: 20px;
+    background: rgb(3,200,168);
+    background: linear-gradient(90deg, rgba(3,200,168,1) 0%, rgba(137,216,211,1) 100%);
+    height: 100%;
+  }
+
+  .list-group-item {
+    background: rgb(3,200,168);
+    background: linear-gradient(90deg, rgba(3,200,168,1) 0%, rgba(137,216,211,1) 100%);
+    border: none;
+  }
+  
+  .ion-md-trash {
+    padding: 11px;
+  }
+  
+ .ion-md-trash:hover {
+    background-color: red;
+    color: #fff;
+    cursor: pointer;
+    }
+  
+  .ion-md-create {
+    padding: 11px;
+  }
+    
+  .ion-md-create:hover {
+    background-color: rgb(145, 216, 221);
+    color: #fff;
+    cursor: pointer;
+    }
+  
+  .mdl-layout-title.top {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  

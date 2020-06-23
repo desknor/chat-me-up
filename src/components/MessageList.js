@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import './../styling/MessageList.css';
 
 class MessageList extends Component {
   constructor(props){
@@ -155,8 +156,8 @@ class MessageList extends Component {
                   <p>{message.content}</p>
                   <p>{this.props.formatTime(message.sentAt)}</p>
                   <p>{message.username}</p>
-                  <span className="ion-md-trash" onClick={() => this.handleRemoveMsg(message.key)}></span>
                   <span className="ion-md-create" onClick={() => this.handleEditMsg(message)}></span>
+                  <span className="ion-md-trash" onClick={() => this.handleRemoveMsg(message.key)}></span>
                 </div>
               }
             </div>
